@@ -36,7 +36,7 @@ class Dense:
         self.inp_size = inp_size
         self.out_size = out_size
 
-        with tf.compat.v1.variable_scope(name) as self.scope:
+        with tf.variable_scope(name) as self.scope:
             if matrix is None:
                 self.W = get_model_variable('W', shape=[inp_size, out_size], initializer=matrix_initializer)
             else:
@@ -53,7 +53,7 @@ class Dense:
         --------------------
         Ret: [..., out_size]
         """
-        with tf.compat.v1.variable_scope(self.scope):
+        with tf.variable_scope(self.scope):
             out = self.activ(dot(inp, self.W) + self.b)
             out.set_shape([None] * (out.shape.ndims - 1) + [self.out_size])
             if rec.is_recorded():
@@ -82,12 +82,13 @@ class Embedding:
         self.voc_size = voc_size
         self.emb_size = emb_size
         self.device = device
+
         if matrix is not None:
             self.mat = matrix
         else:
-            with tf.compat.v1.variable_scope(name), (tf.device(device) if device is not None else nop_ctx()):
+            with tf.variable_scope(name), (tf.device(device) if device is not None else nop_ctx()):
                 self.mat = get_model_variable('mat', shape=[voc_size, emb_size], initializer=initializer)
-		
+
     def __call__(self, inp, gumbel=False):
         """
         inp: [...]
@@ -108,12 +109,12 @@ class LayerNorm:
         self.name = name
         self.epsilon = epsilon
 
-        with tf.compat.v1.variable_scope(name):
+        with tf.variable_scope(name):
             self.scale = get_model_variable('scale', shape=[inp_size], initializer=tf.ones_initializer())
             self.bias = get_model_variable('bias', shape=[inp_size], initializer=tf.zeros_initializer())
 
     def __call__(self, inp):
-        with tf.compat.v1.variable_scope(self.name):
+        with tf.variable_scope(self.name):
             mean = tf.reduce_mean(inp, axis=[-1], keep_dims=True)
             variance = tf.reduce_mean(tf.square(inp - mean), axis=[-1], keep_dims=True)
             norm_x = (inp - mean) * tf.rsqrt(variance + self.epsilon)
@@ -152,7 +153,7 @@ class ResidualLayerWrapper(Wrapper):
 
         if 'n' in steps:
             ln_size = inp_size if steps.index('n') < steps.index('l') else out_size
-            with tf.compat.v1.variable_scope(name) as self.scope:
+            with tf.variable_scope(name) as self.scope:
                 self.norm_layer = LayerNorm("layer_norm", ln_size)
 
         self.steps = steps
@@ -174,7 +175,7 @@ class ResidualLayerWrapper(Wrapper):
         return self._perform(self.postprocess_steps, out, inp=inp)
 
     def _perform(self, steps, out, inp=None):
-        with tf.compat.v1.variable_scope(self.scope):
+        with tf.variable_scope(self.scope):
             if inp is None:
                 inp = out
 
@@ -228,7 +229,7 @@ class LossXent(SequenceLossBase):
         self.bos = voc.bos
         self.label_smoothing = hp.get('label_smoothing', 0)
 
-        with tf.compat.v1.variable_scope(name):
+        with tf.variable_scope(name):
             self._rdo_to_logits = Dense(
                 'logits', rdo_size, self.voc_size, activ=nop,
                 matrix=matrix, bias=bias,
@@ -303,7 +304,7 @@ class FFN:
         self.name = name
         self.relu_dropout = relu_dropout
 
-        with tf.compat.v1.variable_scope(name):
+        with tf.variable_scope(name):
             self.first_conv = Dense(
                 'conv1',
                 inp_size, hid_size,
@@ -322,7 +323,7 @@ class FFN:
         ---------------------------------
         out: [batch_size * ninp * out_dim]
         """
-        with tf.compat.v1.variable_scope(self.name):
+        with tf.variable_scope(self.name):
             hidden = self.first_conv(inputs)
             if is_dropout_enabled():
                 hidden = dropout(hidden, 1.0 - self.relu_dropout)

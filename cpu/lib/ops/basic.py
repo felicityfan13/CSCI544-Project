@@ -8,30 +8,30 @@ from copy import copy
 
 
 def get_seed_from_name(name):
-    full_name = '/'.join([tf.compat.v1.get_variable_scope().name, name])
+    full_name = '/'.join([tf.get_variable_scope().name, name])
     return int(hashlib.md5(full_name.encode()).hexdigest()[:8], 16)
 
 
 def default_initializer(seed, dtype):
-    scope_initializer = tf.compat.v1.get_variable_scope().initializer
+    scope_initializer = tf.get_variable_scope().initializer
     if scope_initializer is not None:
         return scope_initializer
     try:
         return tf.initializers.glorot_uniform(seed, dtype)
     except:
-        return tf.compat.v1.glorot_uniform_initializer(seed, dtype)
-import torch
-def get_model_variable(name, **kwargs):
+        return tf.glorot_uniform_initializer(seed, dtype)
 
-    """Get variable with initializer seeded from its name, not id."""
+
+def get_model_variable(name, **kwargs):
+    """ Get variable from MODEL_VARIABLES collection with initializer seeded from its name, not id """
+
     if kwargs.get('initializer') is None:
         kwargs['initializer'] = default_initializer(seed=get_seed_from_name(name), dtype=kwargs.get('dtype', tf.float32))
     elif hasattr(kwargs['initializer'], 'seed') and kwargs['initializer'].seed is None:
         kwargs['initializer'] = copy(kwargs['initializer'])
         kwargs['initializer'].seed = get_seed_from_name(name)
-    # Create a variable with the specified name and other arguments
-    rand_tensor = torch.rand((kwargs['shape'][0], kwargs['shape'][1]))
-    return tf.Variable(name=name, initial_value = rand_tensor, **kwargs)
+
+    return tf.contrib.framework.model_variable(name, **kwargs)
 
 
 def dot(x, y):

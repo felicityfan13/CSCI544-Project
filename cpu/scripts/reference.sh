@@ -52,7 +52,7 @@ fi
 RUN_NMT=$(/usr/bin/env python3 -c "
 import os, sys, tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-num_gpus = sum(x.device_type == 'GPU' for x in tf.Session().list_devices())
+num_gpus = sum(x.device_type == 'GPU' for x in tf.compat.v1.Session().list_devices())
 if num_gpus > 1:
     sys.stdout.write('mpirun --allow-run-as-root --host {} {}'.format(','.join(['localhost'] * num_gpus), '$NMT'))
 else:
@@ -132,11 +132,11 @@ params=(
     # How to form batches.
     # The only thing you have to be careful about is batch-len:
     # is has to be about 16000 in total. Here is 4000 for 4 gpus: 4 * 4000 in total.
-    --batch-len 4000    # YOU MAY WANT TO CHANGE THIS
+    --batch-len 400    # YOU MAY WANT TO CHANGE THIS
     --batch-maker adaptive_windowed
-    --shuffle-len 100000 
-    --batch-shuffle-len 10000
-    --split-len 200000
+    --shuffle-len 10000 
+    --batch-shuffle-len 1000
+    --split-len 20000
     --maxlen-quant 1
     --maxlen-min 8
     
@@ -157,12 +157,12 @@ params=(
     # This is the usual Transformer learning rate schedule.
     --learning-rate 4.0
     --learning-rate-stop-value 1e-08
-    --decay-steps 16000
+    --decay-steps 1600
     --decay-policy t2t_noam
     
     # How long to train. 
     # Now it says 8m batches, which basically means that you have to look at your tensorboard and stop training manually
-    --num-batches 8000000
+    --num-batches 8000
     
     # Checkpoints.
     # How often to make a checkpoint
@@ -184,6 +184,10 @@ params=(
     # It controls that nmt.py has received all your arguments
     --end-of-params
 )
-
+echo "Current directory: $(pwd)"
+echo "REPO_DIR: $REPO_DIR"
+echo "NMT: $NMT"
+echo "MODEL_HP: $MODEL_HP"
+echo "RUN_NMT: $RUN_NMT"
 $RUN_NMT train "${params[@]}"
 

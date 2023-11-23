@@ -50,7 +50,7 @@ class Transformer:
         self.dst_rand_offset = dst_rand_offset
         self.normalize_out = normalize_out
 
-        with tf.compat.v1.variable_scope(name):
+        with tf.variable_scope(name):
             max_voc_size = max(inp_voc.size(), out_voc.size())
 
             self.emb_inp = Embedding(

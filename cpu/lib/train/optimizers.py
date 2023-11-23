@@ -2,7 +2,6 @@
 
 
 import tensorflow as tf
-import tensorflow_addons as tfa
 from .. import ops
 
 ## ----------------------------------------------------------------------------
@@ -41,7 +40,7 @@ class GradientDescentOptimizer(OptimizerBase):
         return spy.get_update_ops(grads_and_vars)
 
 
-class _GradientDescentOptimizerSpy(tf.optimizers.SGD):
+class _GradientDescentOptimizerSpy(tf.train.GradientDescentOptimizer):
     """
     Like tf.train.GradientDescentOptimizer, but is able to return per-variable
     update operations along with operation that does the complete update
@@ -70,7 +69,7 @@ class RMSPropOptimizer(OptimizerBase):
         return spy.get_update_ops(grads_and_vars)
 
 
-class _RMSPropOptimizerSpy(tf.keras.optimizers.RMSprop):
+class _RMSPropOptimizerSpy(tf.train.RMSPropOptimizer):
     """
     Like tf.train.RMSPropOptimizerOptimizer, but is able to return per-variable
     update operations along with operation that does the complete update
@@ -106,7 +105,7 @@ class AdamOptimizer(OptimizerBase):
         return spy.get_update_ops(grads_and_vars)
 
 
-class _AdamOptimizerSpy(tf.optimizers.Adam):
+class _AdamOptimizerSpy(tf.train.AdamOptimizer):
     """
     Like tf.train.AdamOptimizer, but is able to return per-variable update
     operations along with operation that does the complete update
@@ -142,7 +141,7 @@ class LazyAdamOptimizer(OptimizerBase):
         return spy.get_update_ops(grads_and_vars)
 
 
-class _LazyAdamOptimizerSpy(tfa.optimizers.LazyAdam):
+class _LazyAdamOptimizerSpy(tf.contrib.opt.LazyAdamOptimizer):
     """
     Like tf.contrib.opt.LazyAdamOptimizer, but is able to return per-variable
     update operations along with operation that does the complete update

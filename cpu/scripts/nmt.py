@@ -29,7 +29,7 @@ from lib.util import load_class, merge_dicts
 
 from tensorflow.python import debug as tf_debug
 
-np.set_printoptions(threshold=30000000, linewidth=1000, suppress=True)
+np.set_printoptions(threshold=300000000, linewidth=1000, suppress=True)
 SEED = 'zemberek'  # the secret holy grail of Yandex Translate
 
 
@@ -268,7 +268,7 @@ def TRAIN(args):
             "You have forgotten to pass --end-of-params. This probably means that there is an extra space in your train script and not all parameters are present.")
 
     # Set random seed.
-    tf.random.set_seed(args.seed)
+    tf.set_random_seed(args.seed)
 
     # multi-gpu: we need Local Rank since it is the number of GPU on this host
     MPI_RANK = os.getenv('OMPI_COMM_WORLD_RANK')

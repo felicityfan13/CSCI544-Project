@@ -157,7 +157,7 @@ def is_distributed():
     return mpi_size is not None and int(mpi_size) > 1
 
 
-class Session(tf.compat.v1.Session):
+class Session(tf.Session):
     """A class for running TensorFlow operations, with copies of the same graph
     running distributed across different MPI nodes.
 

@@ -1,28 +1,33 @@
+import tensorflow as tf
+from tensorflow.python import ops
+import lib
+import sys
 import os
 import threading
-from collections import namedtuple
 from contextlib import contextmanager
+from tensorflow.python.framework import *
+from tensorflow.contrib.tfprof import *
+from tensorflow.python.client import timeline, session
+from collections import namedtuple
 
-import tensorflow as tf
-from tensorflow.python.framework import ops
-from tensorflow.python.client import session
-from tensorflow.python.profiler import model_analyzer
-from tensorflow.python.client import timeline
+# tfprof-oriented Session object.
+# More about tfprof:
+# https://github.com/tensorflow/tensorflow/tree/master/tensorflow/tools/tfprof
+#
+# !! Attention !! For using need to append
+# /usr/local/cuda-8.0/extras/CUPTI/lib64 to $LD_LIBRARY_PATH
+
 
 PROFILE_SUPER_VERBOSE = 666
 
 _tls = threading.local()
-
-
 def get_profile_level():
     if not hasattr(_tls, 'profile_level'):
         _tls.profile_level = PROFILE_SUPER_VERBOSE  # Never profile most of sess.run
     return _tls.profile_level
 
-
 def set_profile_level(level):
     _tls.profile_level = level
-
 
 @contextmanager
 def profile_scope(level=1):
@@ -37,17 +42,40 @@ def profile_scope(level=1):
 MemTimelineRecord = namedtuple('MemTimelineRecord', ['ts', 'node_name', 'bytes_in_use', 'live_bytes'])
 
 
-class SessionWrapper(session.Session):
+class SessionWrapper(session.SessionInterface):
+
     def __init__(self, session):
         self._sess = session
-        self._default_session_context_manager = None
+
+    @property
+    def graph(self):
+        return self._sess.graph
+
+    @property
+    def sess_str(self):
+        return self._sess.sess_str
+
+    def run(self, *a, **kwa):
+        return self._sess.run(*a, **kwa)
+
+    def partial_run_setup(self, *a, **kwa):
+        raise RuntimeError("Not supported in session wrapper")
+
+    def partial_run(self, *a, **kwa):
+        raise RuntimeError("Not supported in session wrapper")
+
+    def make_callable(self, *a, **kwa):
+        raise RuntimeError("Not supported in session wrapper")
+
+    def as_default(self):
+        return ops.default_session(self)
 
     def __getattr__(self, attr):
         return getattr(self._sess, attr)
 
     def __enter__(self):
         if self._default_session_context_manager is None:
-            self._default_session_context_manager = self._sess.as_default()
+            self._default_session_context_manager = self.as_default()
         return self._default_session_context_manager.__enter__()
 
     def __exit__(self, *exc):
@@ -61,8 +89,8 @@ class ProfilableSessionWrapper(SessionWrapper):
     def __init__(self, session, log_dir, skip_first_nruns=0, profile_level=0):
         super(ProfilableSessionWrapper, self).__init__(session)
 
-        self.run_options = tf.compat.v1.RunOptions(trace_level=tf.compat.v1.RunOptions.FULL_TRACE)
-        self.run_metadata = tf.compat.v1.RunMetadata()
+        self.run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+        self.run_metadata = tf.RunMetadata()
         self.run_counter = 0
         self.nruns_threshold = skip_first_nruns
         self.profile_level = profile_level
@@ -72,11 +100,11 @@ class ProfilableSessionWrapper(SessionWrapper):
 
         self.op_log = None
         tf.profiler.write_op_log(
-            tf.compat.v1.get_default_graph(),
+            tf.get_default_graph(),
             log_dir=log_dir,
             op_log=self.op_log,
             run_meta=self.run_metadata
-        )
+            )
 
     def _write_log(self):
         print("* --------------------------------------", file=sys.stderr)
@@ -88,13 +116,13 @@ class ProfilableSessionWrapper(SessionWrapper):
         time_stat_options['select'] = ['device', 'micros', 'bytes']
         time_stat_options['order_by'] = 'micros'
         tf.profiler.profile(
-            tf.compat.v1.get_default_graph(),
+            tf.get_default_graph(),
             run_meta=self.run_metadata,
             op_log=self.op_log,
             options=time_stat_options
-        )
+            )
 
-        # 2. Create timeline.json file. It can be loaded in chrome://tracing
+        # 2. Create timeline.json file. It can be load in chrome://tracing
         time_data = timeline.Timeline(self.run_metadata.step_stats)
         trace = time_data.generate_chrome_trace_format(show_memory=True)
         timeline_fname = '%s/timeline.run_%d.json' % (self.log_dir, self.run_counter)
@@ -120,8 +148,8 @@ class ProfilableSessionWrapper(SessionWrapper):
             fetches, feed_dict,
             options=self.run_options if do_profile else None,
             run_metadata=self.run_metadata if do_profile else None
-        )
-        # For each invocation of `run()` or `eval()` methods dump log to a new file
+            )
+        # For earch invocation of `run()` or `eval()` methods dump log to new file
         if do_profile and lib.ops.mpi.is_master():
             self._write_log()
         self.run_counter += 1
@@ -142,8 +170,7 @@ class ProfilableSessionWrapper(SessionWrapper):
                 for mem in node.memory:
                     if mem.allocator_name not in timelines:
                         timelines[mem.allocator_name] = []
-                    timelines[mem.allocator_name].append(
-                        MemTimelineRecord(ts, node.node_name, mem.allocator_bytes_in_use, mem.live_bytes))
+                    timelines[mem.allocator_name].append(MemTimelineRecord(ts, node.node_name, mem.allocator_bytes_in_use, mem.live_bytes))
 
         for tl in timelines.values():
             tl.sort()

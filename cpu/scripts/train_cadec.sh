@@ -1,7 +1,7 @@
 #!/bin/bash
 
 REPO_DIR="/mnt/c/users/felic/good-translation-wrong-in-context" # insert the dir to the good-translation-wrong-in-context repo
-DATA_DIR="C:\Users\felic\good-translation-wrong-in-context\scripts\build" # insert your datadir
+DATA_DIR="/mnt/c/users/felic/good-translation-wrong-in-context/scripts/data/bpe" # insert your datadir
 
 NMT="${REPO_DIR}/scripts/nmt.py"
 
@@ -20,7 +20,7 @@ voc_src="${DATA_DIR}/src.voc"
 voc_dst="${DATA_DIR}/dst.voc"
 
 # path to the trained baseline checkpoint (base model inside CADec)
-base_ckpt="path_to_base_checkpoint"  # insert the path to your base checkpoint
+base_ckpt="/mnt/c/users/felic/good-translation-wrong-in-context/scripts/build/checkpoint"  # insert the path to your base checkpoint
 
 # path where results will be stored
 model_path="./build"
