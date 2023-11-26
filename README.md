@@ -15,6 +15,14 @@ change the REPO PATH to data to your local path
 <img src="./checkpoint.png" width="500">
 change the REPO PATH to data and model checkpoint to your local path
 
+#### python test.py
+The test accuracy is calculated on samples of different context ambiguity. Sample sentences:
+<img src="./sample.png" width="500">
+
+Test result is the accuracy of the translation of different phenomenon based on [data] (https://github.com/lena-voita/good-translation-wrong-in-context/tree/master/consistency_testsets)
+<img src="./result.png" width="500">
+
+
 ## Reference repo:
 ##### 1. https://github.com/lena-voita/good-translation-wrong-in-context
 ##### 2. https://github.com/libeineu/Context-Aware
