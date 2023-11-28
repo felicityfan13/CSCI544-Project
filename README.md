@@ -22,6 +22,57 @@ The test accuracy is calculated on samples of different context ambiguity. Sampl
 Test result is the accuracy of the translation of different phenomenon based on [data] (https://github.com/lena-voita/good-translation-wrong-in-context/tree/master/consistency_testsets)
 <img src="./result.png" width="500">
 
+## Context-Aware model on GPU
+
+This model is an implementation of context-aware models based on fairseq. Reference: [When Does Translation Require Context? A Data-driven, Multilingual Exploration](https://arxiv.org/abs/2109.07446)
+
+
+
+### Environmental Configuration
+
+- [Fairseq](https://github.com/pytorch/fairseq) >= [add65ad](https://github.com/pytorch/fairseq/commit/add65adcc53a927f99a717d90a9672765237d937)
+- [SentencePiece](https://github.com/google/sentencepiece) >= 0.1.90
+- [COMET](https://github.com/Unbabel/COMET)
+- Python == 3.10
+
+Also run
+
+```
+pip install -e .
+```
+
+
+
+### Data
+
+We preprocessed the OpenSubtitles2018 (Lison et al., 2018) data, and the data after preprocessing was placed in .data/mtdata.
+
+
+
+### Code Implementation
+
+Code Execution Process：
+
+```python
+!chmod +x contextual-mt/install_packages.sh
+!./contextual-mt/install_packages.sh
+!./contextual-mt/get_and_split_data.sh
+!./contextual-mt/run_baseline.sh
+!chmod +x contextual-mt/scat_preprocess.sh
+!./contextual-mt/scat_preprocess.sh
+!./contextual-mt/run_attnreg.sh
+!chmod +x contextual-mt/run_inference.sh
+!./contextual-mt/run_inference.sh
+!pip install unbabel-comet
+!chmod +x contextual-mt/run_evaluation.sh
+!./contextual-mt/run_evaluation.sh
+```
+
+
+
+For our project's model file, please refer https://drive.google.com/drive/folders/1hWjpLnt9qyRHPnP6R98RULyp4FOvDOIz?usp=drive_link.
+
+
 
 ## Reference repo:
 ##### 1. https://github.com/lena-voita/good-translation-wrong-in-context
