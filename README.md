@@ -20,6 +20,7 @@ The test accuracy is calculated on samples of different context ambiguity. Sampl
 <img src="./sample.png" width="500">
 
 Test result is the accuracy of the translation of different phenomenon based on [data] (https://github.com/lena-voita/good-translation-wrong-in-context/tree/master/consistency_testsets)
+
 <img src="./result.png" width="500">
 
 ## Context-Aware model on GPU
