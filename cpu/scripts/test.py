@@ -100,7 +100,6 @@ def score_batch(src_lines, dst_lines, name):
     feed = {batch_ph[k]: feed_dict[k] for k in batch_ph}
     scores = sess.run(loss_values, feed)
     print(name + ":")
-    print(scores[0])
     return scores
 
 score_batch(test_src[:4], test_dst[:4], "deixis")
