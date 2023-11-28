@@ -71,7 +71,8 @@ We use Google Colab to execute the following code:
 
 
 
-For our project's model file, please refer https://drive.google.com/drive/folders/1hWjpLnt9qyRHPnP6R98RULyp4FOvDOIz?usp=drive_link.
+### Model
+https://drive.google.com/drive/folders/1hWjpLnt9qyRHPnP6R98RULyp4FOvDOIz?usp=drive_link.
 
 ## Reference repo:
 ##### 1. https://github.com/lena-voita/good-translation-wrong-in-context
