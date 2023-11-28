@@ -45,34 +45,32 @@ pip install -e .
 
 ### Data
 
-We preprocessed the OpenSubtitles2018 (Lison et al., 2018) data, and the data after preprocessing was placed in .data/mtdata.
+We preprocessed the OpenSubtitles2018 (Lison et al., 2018) data, and the data after preprocessing was placed in `.data/mtdata`.
 
 
 
 ### Code Implementation
 
-Code Execution Process：
+We use Google Colab to execute the following code:
 
 ```python
-!chmod +x contextual-mt/install_packages.sh
-!./contextual-mt/install_packages.sh
-!./contextual-mt/get_and_split_data.sh
-!./contextual-mt/run_baseline.sh
-!chmod +x contextual-mt/scat_preprocess.sh
-!./contextual-mt/scat_preprocess.sh
-!./contextual-mt/run_attnreg.sh
-!chmod +x contextual-mt/run_inference.sh
-!./contextual-mt/run_inference.sh
+!chmod +x csci544/gpu/install_packages.sh
+!./csci544/gpu/install_packages.sh
+!./csci544/gpu/get_and_split_data.sh
+!./csci544/gpu/run_baseline.sh
+!chmod +x csci544/gpu/scat_preprocess.sh
+!./csci544/gpu/scat_preprocess.sh
+!./csci544/gpu/run_attnreg.sh
+!chmod +x csci544/gpu/run_inference.sh
+!./csci544/gpu/run_inference.sh
 !pip install unbabel-comet
-!chmod +x contextual-mt/run_evaluation.sh
-!./contextual-mt/run_evaluation.sh
+!chmod +x csci544/gpu/run_evaluation.sh
+!./csci544/gpu/run_evaluation.sh
 ```
 
 
 
 For our project's model file, please refer https://drive.google.com/drive/folders/1hWjpLnt9qyRHPnP6R98RULyp4FOvDOIz?usp=drive_link.
-
-
 
 ## Reference repo:
 ##### 1. https://github.com/lena-voita/good-translation-wrong-in-context
